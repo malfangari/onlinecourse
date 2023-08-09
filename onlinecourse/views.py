@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 # <HINT> Import any new Models here
-from .models import Course, Enrollment
+from .models import Course, Enrollment, Question, Choice, Lesson
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
@@ -11,7 +11,6 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 # Create your views here.
-
 
 def registration_request(request):
     context = {}
@@ -82,24 +81,65 @@ class CourseListView(generic.ListView):
             if user.is_authenticated:
                 course.is_enrolled = check_if_enrolled(user, course)
         return courses
-
-
+#QuestionsListView:
 class CourseDetailView(generic.DetailView):
     model = Course
     template_name = 'onlinecourse/course_detail_bootstrap.html'
+    context_object_name = 'course'
+class LessonDetailView(generic.DetailView):
+    model = Lesson
+    template_name = 'onlinecourse/course_detail_bootstrap.html'
+    context_object_name = 'lesson'
+class QuestionListView(generic.ListView):
+    model = Question
+    template_name = 'onlinecourse/course_detail_bootstrap.html'
+    context_object_name = 'question_list'
+    #def get_queryset(self, course_id):
+        #course_id = self.kwargs['course_id']
+        #course = get_object_or_404(Course, pk=course_id)
+        #user = self.request.user
+        #questions = Question.objects.all()
+        #questions = course.question_set.all()
+        #return questions
+    def get_queryset(self):
+        course_id = self.kwargs['course_id']  # This to Retrieve the course_id from URL, intresting!!
+        course = get_object_or_404(Course, pk=course_id)
+        user = self.request.user
+        questions = Question.objects.filter(courses=course)  # Filter questions by course
+        return questions
+'''class QuestionDetailView(generic.DetailView):
+    model = Question
+    template_name = 'onlinecourse/course_detail_bootstrap.html'
+    context_object_name = 'question'
+    def get_queryset(self):
+        user = self.request.user
+        course_id = self.kwargs['pk']  # Retrieve the course_id from URL parameters
+        course = get_object_or_404(Course, pk=course_id)
+        
+        if user.is_authenticated and check_if_enrolled(user, course):
+            question = Question.objects.all()
+        else:
+            question = []  # Empty list when user is not authenticated or not enrolled           
+        return question'''
 
+class ChoiceListView(generic.ListView):
+    template_name = 'onlinecourse/course_detail_bootstrap.html'
+    context_object_name = 'choice_list'
+    def get_queryset(self):
+        user = self.request.user
+        choices = Choice.objects.all()
+        return choices
 
 def enroll(request, course_id):
+    model = Choice
     course = get_object_or_404(Course, pk=course_id)
     user = request.user
-
     is_enrolled = check_if_enrolled(user, course)
     if not is_enrolled and user.is_authenticated:
         # Create an enrollment
         Enrollment.objects.create(user=user, course=course, mode='honor')
         course.total_enrollment += 1
         course.save()
-
     return HttpResponseRedirect(reverse(viewname='onlinecourse:course_details', args=(course.id,)))
 
 
@@ -110,18 +150,37 @@ def enroll(request, course_id):
          # Collect the selected choices from exam form
          # Add each selected choice object to the submission object
          # Redirect to show_exam_result with the submission id
-#def submit(request, course_id):
+
+def submit(request, course_id):
+    context = {}
+    #template_name = 'onlinecourse/course_detail_bootstrap.html'
+    #context_object_name = 'exam_result'
+    if request.method == 'POST':
+        question = get_object_or_404(Question, pk=course_id)
+        # To check if a choice is selected from request.POST
+        selected_choice_id = request.POST.get('choice_choice_id', None)
+        if selected_choice_id is not None:
+            score = question.is_get_score()
+            if score :
+                exam_result = 'PASSED'
+            else:
+                exam_result = 'FAIlED'
+        #return exam_result
+        return render(request, 'onlinecourse/course_detail_bootstrap.html', context)
+        if 1 == 1:
+            
+               
 
 
 # <HINT> A example method to collect the selected choices from the exam form from the request object
-#def extract_answers(request):
-#    submitted_anwsers = []
-#    for key in request.POST:
-#        if key.startswith('choice'):
-#            value = request.POST[key]
-#            choice_id = int(value)
-#            submitted_anwsers.append(choice_id)
-#    return submitted_anwsers
+def extract_answers(request):
+    submitted_anwsers = []
+    for key in request.POST:
+        if key.startswith('choice'):
+            value = request.POST[key]
+            choice_id = int(value)
+            submitted_anwsers.append(choice_id)
+    return submitted_anwsers
 
 
 # <HINT> Create an exam result view to check if learner passed exam and show their question results and result for each question,

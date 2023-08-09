@@ -9,6 +9,9 @@ urlpatterns = [
     # view refers to the view function
     # name the URL
     path(route='', view=views.CourseListView.as_view(), name='index'),
+    #path(route='', view=views.QuestionDetailView.as_view(), name='question_list'),
+    path('<int:course_id>/', view=views.QuestionListView.as_view(), name='question'),
+    path(route='', view=views.ChoiceListView.as_view(), name='choices'),
     path('registration/', views.registration_request, name='registration'),
     path('login/', views.login_request, name='login'),
     path('logout/', views.logout_request, name='logout'),
