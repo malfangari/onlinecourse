@@ -85,7 +85,7 @@ class CourseListView(generic.ListView):
 class CourseDetailView(generic.DetailView):
     model = Course
     template_name = 'onlinecourse/course_detail_bootstrap.html'
-    context_object_name = 'course'
+    context_object_name = 'courses'
 class LessonDetailView(generic.DetailView):
     model = Lesson
     template_name = 'onlinecourse/course_detail_bootstrap.html'
@@ -106,7 +106,7 @@ class QuestionListView(generic.ListView):
         course = get_object_or_404(Course, pk=course_id)
         user = self.request.user
         questions = Question.objects.filter(courses=course)  # Filter questions by course
-        return questions
+        return questions 
 '''class QuestionDetailView(generic.DetailView):
     model = Question
     template_name = 'onlinecourse/course_detail_bootstrap.html'
@@ -162,15 +162,15 @@ def submit(request, course_id):
         if selected_choice_id is not None:
             score = question.is_get_score()
             if score :
-                exam_result = 'PASSED'
-            else:
-                exam_result = 'FAIlED'
-        #return exam_result
-        return render(request, 'onlinecourse/course_detail_bootstrap.html', context)
-        if 1 == 1:
-            
-               
+                context['message'] = "Congratulation,, You PASSED the exam for this Course."
+                #return render(request, 'onlinecourse/course_detail_bootstrap.html', context)
+                #return HttpResponseRedirect(reverse(viewname='onlinecourse:submit_exam', args=(course.id,)))
 
+            else:
+                context['message'] = "Try again,, You FAIlED the exam for this Course."
+                #return render(request, 'onlinecourse/course_detail_bootstrap.html', context)
+            #return render(request, 'onlinecourse/course_detail_bootstrap.html', context)
+        return render(request, 'onlinecourse/course_detail_bootstrap.html', context)
 
 # <HINT> A example method to collect the selected choices from the exam form from the request object
 def extract_answers(request):

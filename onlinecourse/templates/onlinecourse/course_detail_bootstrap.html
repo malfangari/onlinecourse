@@ -47,8 +47,8 @@
     <!-- Page content -->
     <div class="container-fluid">
 
-            <h2>{{ course.name }}</h2>
-            <p>Number of Questions: {{ question_list|length }}</p>
+            <h2>{{ courses.name }}</h2>
+            <!--<p>Number of Questions: {{ question_list|length }}</p> -->
             <div class="card-columns-vertical">
                 {% for lesson in course.lesson_set.all %}
                     <div class="card mt-1">
@@ -76,9 +76,13 @@
             <!-- <HINT> For each question choice, you may create a checkbox input like
             <input type="check" name="choice_{{choice.id}}" id="{{choice.id}}" ...>
             -->
-
+            <p>Course ID: {{ course.id }}</p>
+            <p>isselected: {{ selected_choice_id }}</p>
              A choice submission form example
-             <form id="questionform" action="point to a submit view" method="post">
+             <form id="questionform" action="{% url 'onlinecourse:submit_exam' course_id=1 %}" method="post">
+                <!--<p>Course ID: {{ course.id }}</p>
+                <p>isselected: {{ selected_choice_id }}</p> -->
+                {% csrf_token %}
                 {% for ques in question_list %}
                     <div class="card">
                         <div class="card-header"><h5>{{ ques.question_text }}</h5></div>
