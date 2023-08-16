@@ -15,7 +15,8 @@
 </head>
 
 <body>
-    <!-- Navigation bar -->
+    <!-- Navigation bar cloned  -->
+    <h2> {{ course.id }}</h2>
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
             <div class="navbar-header">
@@ -46,8 +47,8 @@
 
     <!-- Page content -->
     <div class="container-fluid">
-
-            <h2>{{ courses.name }}</h2>
+        
+            <h2>{{ course.name }}</h2>
             <!--<p>Number of Questions: {{ question_list|length }}</p> -->
             <div class="card-columns-vertical">
                 {% for lesson in course.lesson_set.all %}
@@ -57,7 +58,8 @@
                     </div>
                 {% endfor %}
             </div>
-        
+            <p>Course ID: {{ course.id }}</p>
+            <p>isselected: {{ questions.question_text}}</p>
             <!-- Task: show questions and choices -->
             
             <!-- <HINT> Use Bootstrap Collapse to hide exam first, more details could be found here
@@ -65,29 +67,22 @@
 
             <button type="button" class="btn btn-primary btn-block" data-toggle="collapse" data-target="#exam">Start Exam</button>            
             <div id="exam" class="collapse">
-            <!-- <HINT> If user is authenticated, show course exam with a list of question -->
-
-            <!-- <HINT> Each example will have many questions -->
-
-            <!-- <HINT> Each question will have many choices -->
-
-
-            <!-- <HINT> Create a form to collect the selected choices for all questions -->
-            <!-- <HINT> For each question choice, you may create a checkbox input like
-            <input type="check" name="choice_{{choice.id}}" id="{{choice.id}}" ...>
-            -->
+                {% if user.is_authenticated %}
             <p>Course ID: {{ course.id }}</p>
             <p>isselected: {{ selected_choice_id }}</p>
              A choice submission form example
-             <form id="questionform" action="{% url 'onlinecourse:submit_exam' course_id=1 %}" method="post">
-                <!--<p>Course ID: {{ course.id }}</p>
-                <p>isselected: {{ selected_choice_id }}</p> -->
+                <form id="questionform" action="{% url 'onlinecourse:submit_exam' course_id=course.id %}" method="post">
                 {% csrf_token %}
+                <p>before the loop...Course ID: {{ course.id }}</p>
+                <p>isselected: {{ questions.question_text}}</p>
                 {% for ques in question_list %}
+                <p>after for loop...Course ID: {{ ques.course.id }}</p>
+                <p>Question: {{ ques }}</p> 
                     <div class="card">
                         <div class="card-header"><h5>{{ ques.question_text }}</h5></div>
                         {% csrf_token %}
                         <div class="form-group">
+
                             {% for choice in ques.choice_set.all %}
                                 <div class="form-check">
                                     <label class="form-check-label">
@@ -97,13 +92,15 @@
                                     </label>
                                 </div>
                             {% endfor %}
-                        </div>
+                          </div>
                     </div>
                 {% endfor %}
                 <input class="btn btn-success btn-block" type="submit" value="Submit">
-            </form>
-             
-        </div>          
+                </form>
+                {% else %}
+                <p>not allowed</p>  
+                {% endif %}
+            </div>          
 
             <!--Check here to see more details Bootstrap checkbox
              https://www.w3schools.com/bootstrap4/bootstrap_forms_inputs.asp-->

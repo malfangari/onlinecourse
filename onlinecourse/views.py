@@ -94,18 +94,12 @@ class QuestionListView(generic.ListView):
     model = Question
     template_name = 'onlinecourse/course_detail_bootstrap.html'
     context_object_name = 'question_list'
-    #def get_queryset(self, course_id):
-        #course_id = self.kwargs['course_id']
-        #course = get_object_or_404(Course, pk=course_id)
-        #user = self.request.user
-        #questions = Question.objects.all()
-        #questions = course.question_set.all()
-        #return questions
+
     def get_queryset(self):
         course_id = self.kwargs['course_id']  # This to Retrieve the course_id from URL, intresting!!
         course = get_object_or_404(Course, pk=course_id)
-        user = self.request.user
-        questions = Question.objects.filter(courses=course)  # Filter questions by course
+        #user = self.request.user
+        questions = Question.objects.filter(courses=course)  # Filter questions by the related course
         return questions 
 '''class QuestionDetailView(generic.DetailView):
     model = Question
