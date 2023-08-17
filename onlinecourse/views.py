@@ -155,7 +155,7 @@ def extract_answers(request):
             choice_id = int(value)
             submitted_anwsers.append(choice_id)
     return submitted_anwsers
-
+#<<<<>>>>> I am using this view to submit and get the result in exam_result page!!<<<<<<<>>>>>>>>>>
 def submit(request, course_id):
     # What I understand is: submit method is to take collected answers from 'extract_answers' function
     # then fill Choice model with it, then bring 'Passed' questions from Question model 
@@ -189,7 +189,7 @@ def submit(request, course_id):
     }
     return render(request, template_name, context)
 
-
+#<<<>>> I just used the previous method, So no need for 'show_exam_result', at least thats what I think :-) <<<>>>
 # <HINT> Create an exam result view to check if learner passed exam and show their question results and result for each question,
 # you may implement it based on the following logic:
         # Get course and submission based on their ids
