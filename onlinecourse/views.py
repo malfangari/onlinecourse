@@ -145,26 +145,6 @@ def enroll(request, course_id):
          # Add each selected choice object to the submission object
          # Redirect to show_exam_result with the submission id
 
-def submit(request, course_id):
-    context = {}
-    #template_name = 'onlinecourse/course_detail_bootstrap.html'
-    #context_object_name = 'exam_result'
-    if request.method == 'POST':
-        question = get_object_or_404(Question, pk=course_id)
-        # To check if a choice is selected from request.POST
-        selected_choice_id = request.POST.get('choice_choice_id', None)
-        if selected_choice_id is not None:
-            score = question.is_get_score()
-            if score :
-                context['message'] = "Congratulation,, You PASSED the exam for this Course."
-                #return render(request, 'onlinecourse/course_detail_bootstrap.html', context)
-                #return HttpResponseRedirect(reverse(viewname='onlinecourse:submit_exam', args=(course.id,)))
-
-            else:
-                context['message'] = "Try again,, You FAIlED the exam for this Course."
-                #return render(request, 'onlinecourse/course_detail_bootstrap.html', context)
-            #return render(request, 'onlinecourse/course_detail_bootstrap.html', context)
-        return render(request, 'onlinecourse/course_detail_bootstrap.html', context)
 
 # <HINT> A example method to collect the selected choices from the exam form from the request object
 def extract_answers(request):
@@ -175,6 +155,39 @@ def extract_answers(request):
             choice_id = int(value)
             submitted_anwsers.append(choice_id)
     return submitted_anwsers
+
+def submit(request, course_id):
+    # What I understand is: submit method is to take collected answers from 'extract_answers' function
+    # then fill Choice model with it, then bring 'Passed' questions from Question model 
+    # and calculate the grade for the Course (>= 80 pass else failud):
+    template_name = 'onlinecourse/exam_result_bootstrap.html'
+    #course = get_object_or_404(Course, pk=course_id)
+    course = Course.objects.get(pk=course_id)
+    #question = get_object_or_404(Question, pk=question_id)
+    questions = Question.objects.filter(courses=course)
+    questions_length = questions.count()   
+    #choice = Choice.objects.get(pk=course_id) 
+    for question in questions:
+        choices = question.choice_set.all()  # Get all choices related to the current question
+        for choice in choices:
+            choice_id = choice.id
+    for answered in extract_answers(request):
+        if choice_id == answered:
+            choice.selected_ids = True  # To fill 'selected_ids' field in Choice model
+    counter = 0
+    for question in  questions:
+        selected_ids = extract_answers(request)
+        result, _ = question.is_get_score(selected_ids)
+        if result:
+            counter +=1
+    grade = (counter/questions_length)*100
+    course_result = grade >= 80  # if grade >= 80 course_result output is True, usefull..!!
+    context = {
+        'course':course,
+        'grade': grade,
+        'course_result': course_result,
+    }
+    return render(request, template_name, context)
 
 
 # <HINT> Create an exam result view to check if learner passed exam and show their question results and result for each question,
