@@ -104,7 +104,6 @@ class Enrollment(models.Model):
 class Question(models.Model):
     courses = models.ForeignKey(Course, on_delete=models.CASCADE)
     question_text = models.CharField(max_length=100)
-    grade = models.BooleanField(default=False)
     # Foreign key to lesson
     # question text
     # question grade/mark
@@ -113,23 +112,15 @@ class Question(models.Model):
     def is_get_score(self, selected_ids):
         all_answers = self.choice_set.filter(is_correct=True).count()
         selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_ids).count()
-        grade = (selected_correct/all_answers)*100
         if all_answers == selected_correct:
         #if all_answers == selected_correct and grade >= 80:
             result = True
         else:
             result = False 
-        self.result = result  # Update the model instance's result & grade
-        self.grade = grade  
+        some = 1
+        self.result = result  # Update the model instance's result         
         self.save()  # Save the changes to the database
-        return result, grade, all_answers, selected_correct
-
-        if all_answers == selected_correct:
-            return True
-        else:
-            return False
-
-
+        return result, some
 #  <HINT> Create a Choice Model with:
     # Used to persist choice content for a question
     # One-To-Many (or Many-To-Many if you want to reuse choices) relationship with Question
