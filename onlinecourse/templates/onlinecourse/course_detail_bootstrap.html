@@ -59,30 +59,26 @@
                 {% endfor %}
             </div>
             <p>Course ID: {{ course.id }}</p>
-            <p>isselected: {{ questions.question_text}}</p>
+            <p>isselected: {{ questions.question_text }}</p>
             <!-- Task: show questions and choices -->
             
             <!-- <HINT> Use Bootstrap Collapse to hide exam first, more details could be found here
             https://www.w3schools.com/bootstrap4/bootstrap_collapse.asp-->
-
+            {% for ques in Questions %} 
+            <div class="card">
+                <div class="card-header"><h5>{{ ques.question_text }}</h5></div>
+                </div>
+                {% endfor %}
             <button type="button" class="btn btn-primary btn-block" data-toggle="collapse" data-target="#exam">Start Exam</button>            
             <div id="exam" class="collapse">
+              
                 {% if user.is_authenticated %}
-            <p>Course ID: {{ course.id }}</p>
-            <p>isselected: {{ selected_choice_id }}</p>
-             A choice submission form example
-                <form id="questionform" action="{% url 'onlinecourse:submit_exam' course_id=course.id %}" method="post">
+                <form id="questionform" action="{% url 'onlinecourse:submit_exam' course_id=course_id %}" method="post">
                 {% csrf_token %}
-                <p>before the loop...Course ID: {{ course.id }}</p>
-                <p>isselected: {{ questions.question_text}}</p>
-                {% for ques in question_list %}
-                <p>after for loop...Course ID: {{ ques.course.id }}</p>
-                <p>Question: {{ ques }}</p> 
+                {% for ques in questions %} 
                     <div class="card">
                         <div class="card-header"><h5>{{ ques.question_text }}</h5></div>
-                        {% csrf_token %}
                         <div class="form-group">
-
                             {% for choice in ques.choice_set.all %}
                                 <div class="form-check">
                                     <label class="form-check-label">

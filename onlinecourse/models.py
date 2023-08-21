@@ -104,6 +104,7 @@ class Enrollment(models.Model):
 class Question(models.Model):
     courses = models.ForeignKey(Course, on_delete=models.CASCADE)
     question_text = models.CharField(max_length=100)
+    result = models.BooleanField(default=False)
     # Foreign key to lesson
     # question text
     # question grade/mark
@@ -111,16 +112,16 @@ class Question(models.Model):
     # <HINT> A sample model method to calculate if learner get the score of the question
     def is_get_score(self, selected_ids):
         all_answers = self.choice_set.filter(is_correct=True).count()
+        look = all_answers
         selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_ids).count()
-        if all_answers == selected_correct:
-        #if all_answers == selected_correct and grade >= 80:
+        all_selected = self.choice_set.filter(id__in=selected_ids).count()
+        if all_answers == selected_correct and all_selected == all_answers:
             result = True
         else:
             result = False 
-        some = 1
         self.result = result  # Update the model instance's result         
         self.save()  # Save the changes to the database
-        return result, some
+        return result, look
 #  <HINT> Create a Choice Model with:
     # Used to persist choice content for a question
     # One-To-Many (or Many-To-Many if you want to reuse choices) relationship with Question
@@ -131,7 +132,7 @@ class Choice(models.Model):
     choice_text = models.CharField(max_length=100)
     questions = models.ForeignKey(Question, on_delete=models.CASCADE)
     is_correct = models.BooleanField(default=False)
-    selected_ids = models.BooleanField(default=False)
+    is_selected = models.BooleanField(default=False)   # used in coolecting result to color code the selections!!
 
 # <HINT> The submission model
 # One enrollment could have multiple submission

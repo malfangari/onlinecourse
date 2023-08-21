@@ -86,6 +86,7 @@ class CourseDetailView(generic.DetailView):
     model = Course
     template_name = 'onlinecourse/course_detail_bootstrap.html'
     context_object_name = 'courses'
+    
 class LessonDetailView(generic.DetailView):
     model = Lesson
     template_name = 'onlinecourse/course_detail_bootstrap.html'
@@ -94,13 +95,15 @@ class QuestionListView(generic.ListView):
     model = Question
     template_name = 'onlinecourse/course_detail_bootstrap.html'
     context_object_name = 'question_list'
-
-    def get_queryset(self):
-        course_id = self.kwargs['course_id']  # This to Retrieve the course_id from URL, intresting!!
+    def get(self, request, course_id):
         course = get_object_or_404(Course, pk=course_id)
-        #user = self.request.user
         questions = Question.objects.filter(courses=course)  # Filter questions by the related course
-        return questions 
+        context = {
+            'course': course,
+            'questions': questions,
+            'course_id' : course_id,
+        }
+        return render(request, self.template_name, context)   
 '''class QuestionDetailView(generic.DetailView):
     model = Question
     template_name = 'onlinecourse/course_detail_bootstrap.html'
@@ -156,37 +159,58 @@ def extract_answers(request):
             submitted_anwsers.append(choice_id)
     return submitted_anwsers
 #<<<<>>>>> I am using this view to submit and get the result in exam_result page!!<<<<<<<>>>>>>>>>>
+'''def submit(request, course_id):
+     What I understand is: submit method is to take collected answers from 'extract_answers' function
+     then fill Choice model's  object 'selected_ids' with it, So 'is_get_score' function 
+     can work on it to give if question is solved correctly, then bring 'Passed' questions from Question model 
+     and calculate the grade for the Course (>= 80 pass else failud):
+     finally I added a code to produce correct choices to show in exam_result template..!
+    '''
 def submit(request, course_id):
-    # What I understand is: submit method is to take collected answers from 'extract_answers' function
-    # then fill Choice model with it, then bring 'Passed' questions from Question model 
-    # and calculate the grade for the Course (>= 80 pass else failud):
     template_name = 'onlinecourse/exam_result_bootstrap.html'
-    #course = get_object_or_404(Course, pk=course_id)
     course = Course.objects.get(pk=course_id)
-    #question = get_object_or_404(Question, pk=question_id)
     questions = Question.objects.filter(courses=course)
-    questions_length = questions.count()   
-    #choice = Choice.objects.get(pk=course_id) 
-    for question in questions:
-        choices = question.choice_set.all()  # Get all choices related to the current question
-        for choice in choices:
-            choice_id = choice.id
-    for answered in extract_answers(request):
-        if choice_id == answered:
-            choice.selected_ids = True  # To fill 'selected_ids' field in Choice model
+    questions_length = questions.count()
+    selected_ids = []
+    printed_result = []
+    selected_ids = extract_answers(request)
+    for value in selected_ids:
+        print(value,"&&&&")
     counter = 0
-    for question in  questions:
-        selected_ids = extract_answers(request)
-        result, _ = question.is_get_score(selected_ids)
-        if result:
-            counter +=1
-    grade = (counter/questions_length)*100
-    course_result = grade >= 80  # if grade >= 80 course_result output is True, usefull..!!
+    correct_count = 0
+    for question in questions:
+        correct_selected_choices = []  # Store selected choices for the current question 
+        All_choices = []
+        choices = question.choice_set.all()
+        for choice in choices:           
+            if choice.id in selected_ids:
+                choice.is_selected = True   
+        question.result,_ = question.is_get_score(selected_ids)
+        print(question.result,"...........................")
+        if question.result:
+            counter += 1 
+        print(choice.choice_text,"is selected++++++++++++++++++++++",choice.is_selected)
+        if choice.is_correct:
+            correct_count +=1
+        for choice in choices:
+            All_choices.append(choice)
+        print("ooooooo",All_choices,"ooooooooo")
+        print(choice,"kkkkkkkkkkkkkkkkkkkkkk")
+        printed_result.append({
+            'question': question.question_text,
+            'selected_choice': correct_selected_choices,
+            'All_choice': All_choices,      # to show all choices then color them
+        })  
+    grade = (counter / questions_length) * 100
+    course_result = grade >= 80 
     context = {
-        'course':course,
-        'grade': grade,
+        'course': course,
+        'grade': int(grade),
         'course_result': course_result,
+        'exam_result': printed_result,
+        'course_id': course_id,
     }
+    counter = 0
     return render(request, template_name, context)
 
 #<<<>>> I just used the previous method, So no need for 'show_exam_result', at least thats what I think :-) <<<>>>
