@@ -133,7 +133,7 @@ class Choice(models.Model):
     choice_text = models.CharField(max_length=100)
     questions = models.ForeignKey(Question, on_delete=models.CASCADE)
     is_correct = models.BooleanField(default=False)
-    is_selected = models.BooleanField(default=False)   # used in coolecting result to color code the selections!!
+    is_selected = models.BooleanField(default=False)   # used in colecting results to be displayed in colored selections!!
 
 # <HINT> The submission model
 # One enrollment could have multiple submission
