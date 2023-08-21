@@ -114,8 +114,9 @@ class Question(models.Model):
         all_answers = self.choice_set.filter(is_correct=True).count()
         look = all_answers
         selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_ids).count()
+# 'all_selected', 'and all_selected == all_answers:' added to solve prblem of selecting correct answers with wrong answers
         all_selected = self.choice_set.filter(id__in=selected_ids).count()
-        if all_answers == selected_correct and all_selected == all_answers:
+        if all_answers == selected_correct and all_selected == all_answers: 
             result = True
         else:
             result = False 
