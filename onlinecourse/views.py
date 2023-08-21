@@ -208,8 +208,9 @@ def submit(request, course_id):
     }
     counter = 0
     return render(request, template_name, context)
-
-#<<<>>> I just used the previous method, So no need for 'show_exam_result', at least thats what I think :-) <<<>>>
+                      #<<<<<<<<<<<>>>>>>> IMPORTANT COMMENT:<<<<<<<<<<<<>>>>>>>>>>>>>>>>:
+#<<<>>> I just used the previous method 'submit' to Do all exam result job, So no need for
+#'show_exam_result', at least it is WORKING verry well <<<>>>
 
 # <HINT> Create an exam result view to check if learner passed exam and show their question results and result for each question,
 # you may implement it based on the following logic:
