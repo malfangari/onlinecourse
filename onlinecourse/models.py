@@ -104,7 +104,7 @@ class Enrollment(models.Model):
 class Question(models.Model):
     courses = models.ForeignKey(Course, on_delete=models.CASCADE)
     question_text = models.CharField(max_length=100)
-    result = models.BooleanField(default=False)
+    result = models.BooleanField(default=False)   #using this To point on answered ques- So can be added to answered list
     # Foreign key to lesson
     # question text
     # question grade/mark
@@ -138,6 +138,8 @@ class Choice(models.Model):
 # One enrollment could have multiple submission
 # One submission could have multiple choices
 # One choice could belong to multiple submissions
+
+#In my Idea I am not using fhe following model!!
 class Submission(models.Model):
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
     chocies = models.ManyToManyField(Choice)

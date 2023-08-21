@@ -174,8 +174,8 @@ def submit(request, course_id):
     selected_ids = []
     printed_result = []
     selected_ids = extract_answers(request)
-    for value in selected_ids:
-        print(value,"&&&&")
+    for value in selected_ids:#Tseter after filling selected_ids list
+        print(value,"&&&&")  #Tseter
     counter = 0
     correct_count = 0
     for question in questions:
@@ -186,16 +186,12 @@ def submit(request, course_id):
             if choice.id in selected_ids:
                 choice.is_selected = True   
         question.result,_ = question.is_get_score(selected_ids)
-        print(question.result,"...........................")
         if question.result:
             counter += 1 
-        print(choice.choice_text,"is selected++++++++++++++++++++++",choice.is_selected)
         if choice.is_correct:
             correct_count +=1
         for choice in choices:
             All_choices.append(choice)
-        print("ooooooo",All_choices,"ooooooooo")
-        print(choice,"kkkkkkkkkkkkkkkkkkkkkk")
         printed_result.append({
             'question': question.question_text,
             'selected_choice': correct_selected_choices,
@@ -214,6 +210,7 @@ def submit(request, course_id):
     return render(request, template_name, context)
 
 #<<<>>> I just used the previous method, So no need for 'show_exam_result', at least thats what I think :-) <<<>>>
+
 # <HINT> Create an exam result view to check if learner passed exam and show their question results and result for each question,
 # you may implement it based on the following logic:
         # Get course and submission based on their ids
